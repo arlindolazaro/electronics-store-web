@@ -1,1 +1,1 @@
-# mundo-store-backend
+# mundo store frontend
