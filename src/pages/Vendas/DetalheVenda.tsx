@@ -4,10 +4,12 @@ import { ArrowLeft, Loader2, Check, Package, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import vendasService, { type Venda } from '../../services/vendas.service';
 import { formatCurrency, safeMultiply } from '../../utils/formatters';
+import useAuthStore from '../../store/authStore';
 
 const DetalheVenda: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user } = useAuthStore();
   const [venda, setVenda] = useState<Venda | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isConfirming, setIsConfirming] = useState(false);
@@ -76,7 +78,8 @@ const DetalheVenda: React.FC = () => {
     if (!venda?.id) return;
     try {
       setIsConfirming(true);
-      const vendaAtualizada = await vendasService.confirmar(venda.id);
+      const username = user?.name || user?.email || 'system';
+      const vendaAtualizada = await vendasService.confirmar(venda.id, 'Maputo', username);
       setVenda(vendaAtualizada);
       setShowConfirmModal(false);
       toast.success('Venda confirmada com sucesso!');
@@ -92,7 +95,8 @@ const DetalheVenda: React.FC = () => {
     if (!venda?.id) return;
     try {
       setIsShipping(true);
-      const vendaAtualizada = await vendasService.marcarEnviada(venda.id);
+      const username = user?.name || user?.email || 'system';
+      const vendaAtualizada = await vendasService.marcarEnviada(venda.id, 'Maputo', username);
       setVenda(vendaAtualizada);
       setShowConfirmModal(false);
       toast.success('Venda marcada como enviada!');
@@ -212,7 +216,7 @@ const DetalheVenda: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           <div>
             <p className="text-sm text-gray-600 mb-1">Nome</p>
-            <p className="font-semibold text-gray-900">{venda.clienteNome || venda.createdBy || 'Não informado'}</p>
+            <p className="font-semibold text-gray-900">{venda.clienteNome || 'Não informado'}</p>
           </div>
           <div>
             <p className="text-sm text-gray-600 mb-1">Email</p>
