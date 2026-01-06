@@ -62,13 +62,17 @@ class VendasService {
         return response.data;
     }
 
-    async confirmar(id: number): Promise<Venda> {
-        const response = await api.post(`/api/sales/${id}/confirm`);
+    async confirmar(id: number, location: string = 'default', username: string = 'system'): Promise<Venda> {
+        const response = await api.post(`/api/sales/${id}/confirm`, null, {
+            params: { location, username }
+        });
         return response.data;
     }
 
-    async marcarEnviada(id: number): Promise<Venda> {
-        const response = await api.post(`/api/sales/${id}/ship`);
+    async marcarEnviada(id: number, location: string = 'default', username: string = 'system'): Promise<Venda> {
+        const response = await api.post(`/api/sales/${id}/ship`, null, {
+            params: { location, username }
+        });
         return response.data;
     }
 }
