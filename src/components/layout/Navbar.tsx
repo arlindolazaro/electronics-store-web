@@ -28,7 +28,7 @@ const Navbar: React.FC = () => {
             </button>
             <div className="flex-shrink-0 flex items-center">
               <Link to="/dashboard" className="text-xl font-bold text-primary-600">
-                Mundo Store
+                Ecommerce Management
               </Link>
             </div>
           </div>
