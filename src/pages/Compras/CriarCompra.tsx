@@ -32,13 +32,13 @@ const CriarCompra: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [selectedProdutoId, setSelectedProdutoId] = useState<number | ''>('');
   const [quantidade, setQuantidade] = useState(1);
+  const [precoUnitario, setPrecoUnitario] = useState(0);
 
   const { control, handleSubmit, formState: { errors }, getValues, reset } = useForm<CompraFormData>({
     resolver: zodResolver(compraSchema),
     defaultValues: {
       fornecedorNome: '',
       fornecedorEmail: '',
-      precoUnitario: 0 as any,
     },
   });
 
@@ -64,8 +64,7 @@ const CriarCompra: React.FC = () => {
   const produtoSelecionado = produtos.find(p => p.id === selectedProdutoId);
 
   const adicionarLinha = () => {
-    const currentPreco = (getValues as any)().precoUnitario ?? 0;
-    if (!selectedProdutoId || quantidade <= 0 || (typeof currentPreco !== 'number' || Number.isNaN(currentPreco) || currentPreco <= 0)) {
+    if (!selectedProdutoId || quantidade <= 0 || !precoUnitario || precoUnitario <= 0) {
       toast.error('Selecione produto, quantidade e preço válidos');
       return;
     }
@@ -74,14 +73,14 @@ const CriarCompra: React.FC = () => {
       produtoId: Number(selectedProdutoId),
       variacaoId: 1, // Variação padrão
       quantidade,
-      precoUnitario: currentPreco,
+      precoUnitario,
       produtoNome: produtoSelecionado?.nome,
     };
 
     setLinhas([...linhas, novaLinha]);
     setSelectedProdutoId('');
     setQuantidade(1);
-    reset({ ...((() => ({ fornecedorNome: '', fornecedorEmail: '' }))() as any), precoUnitario: 0 } as any);
+    setPrecoUnitario(0);
     toast.success('Linha adicionada ao pedido');
   };
 
@@ -212,27 +211,15 @@ const CriarCompra: React.FC = () => {
               </div>
 
               <div className="col-span-2">
-                <Controller
-                  name="precoUnitario"
-                  control={control}
-                  render={({ field }) => (
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">Preço Unit.</label>
-                      <input
-                        {...field}
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        inputMode="decimal"
-                        onChange={(e) => {
-                          const v = e.target.value;
-                          field.onChange(v === '' ? 0 : parseFloat(v));
-                        }}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
-                        placeholder="0.00"
-                      />
-                    </div>
-                  )}
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Preço Unit.</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={precoUnitario}
+                  onChange={(e) => setPrecoUnitario(parseFloat(e.target.value) || 0)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                  placeholder="0.00"
                 />
               </div>
 

@@ -35,10 +35,14 @@ const ListaCompras: React.FC = () => {
   const getStatusColor = (status: string) => {
     switch(status) {
       case 'DRAFT': return 'bg-yellow-100 text-yellow-800';
-      case 'ENVIADO': return 'bg-orange-100 text-orange-800';
-      case 'APROVADO': return 'bg-green-100 text-green-800';
+      case 'ENVIADO':
+      case 'SENT': return 'bg-orange-100 text-orange-800';
+      case 'APROVADO':
+      case 'ACCEPTED': return 'bg-green-100 text-green-800';
       case 'REJEITADO': return 'bg-red-100 text-red-800';
-      case 'RECEBIDO': return 'bg-blue-100 text-blue-800';
+      case 'RECEBIDO':
+      case 'PARTIALLY_RECEIVED':
+      case 'CLOSED': return 'bg-blue-100 text-blue-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -46,10 +50,15 @@ const ListaCompras: React.FC = () => {
   const getStatusLabel = (status: string) => {
     switch(status) {
       case 'DRAFT': return 'Rascunho';
-      case 'ENVIADO': return 'Enviado';
-      case 'APROVADO': return 'Aprovado';
+      case 'ENVIADO':
+      case 'SENT': return 'Enviado';
+      case 'APROVADO':
+      case 'ACCEPTED': return 'Aprovado';
       case 'REJEITADO': return 'Rejeitado';
-      case 'RECEBIDO': return 'Recebido';
+      case 'RECEBIDO':
+      case 'PARTIALLY_RECEIVED': return 'Parcialmente Recebido';
+      case 'CLOSED': return 'Recebido';
+      case 'CANCELLED': return 'Cancelado';
       default: return status;
     }
   };

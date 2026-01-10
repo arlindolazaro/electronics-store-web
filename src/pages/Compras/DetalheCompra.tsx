@@ -75,10 +75,14 @@ const DetalheCompra: React.FC = () => {
   const getStatusColor = (status: string) => {
     switch(status) {
       case 'DRAFT': return 'bg-yellow-100 text-yellow-800';
-      case 'ENVIADO': return 'bg-orange-100 text-orange-800';
-      case 'APROVADO': return 'bg-green-100 text-green-800';
+      case 'ENVIADO':
+      case 'SENT': return 'bg-orange-100 text-orange-800';
+      case 'APROVADO':
+      case 'ACCEPTED': return 'bg-green-100 text-green-800';
       case 'REJEITADO': return 'bg-red-100 text-red-800';
-      case 'RECEBIDO': return 'bg-blue-100 text-blue-800';
+      case 'RECEBIDO':
+      case 'PARTIALLY_RECEIVED':
+      case 'CLOSED': return 'bg-blue-100 text-blue-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -86,10 +90,15 @@ const DetalheCompra: React.FC = () => {
   const getStatusLabel = (status: string) => {
     switch(status) {
       case 'DRAFT': return 'Rascunho';
-      case 'ENVIADO': return 'Enviado';
-      case 'APROVADO': return 'Aprovado';
+      case 'ENVIADO':
+      case 'SENT': return 'Enviado';
+      case 'APROVADO':
+      case 'ACCEPTED': return 'Aprovado';
       case 'REJEITADO': return 'Rejeitado';
-      case 'RECEBIDO': return 'Recebido';
+      case 'RECEBIDO':
+      case 'PARTIALLY_RECEIVED': return 'Parcialmente Recebido';
+      case 'CLOSED': return 'Recebido';
+      case 'CANCELLED': return 'Cancelado';
       default: return status;
     }
   };
@@ -115,18 +124,22 @@ const DetalheCompra: React.FC = () => {
       {/* Informações do Fornecedor */}
       <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
         <h2 className="text-lg font-semibold mb-4">Informações do Fornecedor</h2>
-        <div className="grid grid-cols-2 gap-6">
-          <div>
-            <p className="text-sm text-gray-600 mb-1">Nome</p>
-            <p className="font-semibold text-gray-900">{compra.fornecedorNome}</p>
-          </div>
-          {compra.fornecedorEmail && (
+        {compra.fornecedorNome ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Email</p>
-              <p className="font-semibold text-gray-900">{compra.fornecedorEmail}</p>
+              <p className="text-sm text-gray-600 mb-1">Nome</p>
+              <p className="font-semibold text-gray-900">{compra.fornecedorNome}</p>
             </div>
-          )}
-        </div>
+            {compra.fornecedorEmail && (
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Email</p>
+                <a href={`mailto:${compra.fornecedorEmail}`} className="font-semibold text-blue-600 hover:text-blue-700">{compra.fornecedorEmail}</a>
+              </div>
+            )}
+          </div>
+        ) : (
+          <p className="text-gray-500 italic">Sem informações de fornecedor</p>
+        )}
       </div>
 
       {/* Status do Pedido */}
@@ -149,7 +162,7 @@ const DetalheCompra: React.FC = () => {
                   <th className="px-6 py-3 text-center text-sm font-semibold text-gray-700">Quantidade</th>
                   <th className="px-6 py-3 text-right text-sm font-semibold text-gray-700">Preço Unit.</th>
                   <th className="px-6 py-3 text-right text-sm font-semibold text-gray-700">Total</th>
-                  {compra.status === 'APROVADO' && (
+                  {(compra.status === 'APROVADO' || compra.status === 'ACCEPTED' || compra.status === 'PARTIALLY_RECEIVED') && (
                     <th className="px-6 py-3 text-center text-sm font-semibold text-gray-700">Recebidas</th>
                   )}
                 </tr>
@@ -165,7 +178,7 @@ const DetalheCompra: React.FC = () => {
                     <td className="px-6 py-4 text-right text-sm font-semibold text-gray-900">
                       {formatCurrency(safeMultiply(linha.quantidade, linha.precoUnitario))}
                     </td>
-                    {compra.status === 'APROVADO' && (
+                    {(compra.status === 'APROVADO' || compra.status === 'ACCEPTED' || compra.status === 'PARTIALLY_RECEIVED') && (
                       <td className="px-6 py-4 text-center">
                         <button
                           onClick={() => {
