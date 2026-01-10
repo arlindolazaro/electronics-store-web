@@ -178,7 +178,7 @@ const Dashboard: React.FC = () => {
     <div className="p-6 space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 mt-1">Bem-vindo ao Mundo Store</p>
+        <p className="text-gray-600 mt-1">Bem-vindo ao Ecommerce Management</p>
       </div>
 
       {isLoading ? (
