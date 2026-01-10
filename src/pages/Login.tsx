@@ -50,7 +50,7 @@ const Login: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex justify-center items-center px-4">
       <div className="w-full max-w-md bg-white p-8 rounded-lg shadow">
-        <h2 className="text-2xl font-bold text-center">Mundo Store</h2>
+        <h2 className="text-2xl font-bold text-center">Ecommerce Management</h2>
         <p className="text-sm text-center text-gray-500 mb-6">
           Faça login para acessar o sistema
         </p>

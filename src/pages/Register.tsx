@@ -64,7 +64,7 @@ const Register: React.FC = () => {
       <div className="w-full max-w-md bg-white p-8 rounded-lg shadow">
         <h2 className="text-2xl font-bold text-center">Criar conta</h2>
         <p className="text-sm text-center text-gray-500 mb-6">
-          Registre-se no Mundo Store
+          Registre-se no Ecommerce Management
         </p>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
