@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Loader2, Check, Package, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import vendasService, { type Venda } from '../../services/vendas.service';
+import produtosService, { type Produto } from '../../services/produtos.service';
 import { formatCurrency, safeMultiply } from '../../utils/formatters';
 import useAuthStore from '../../store/authStore';
 
@@ -11,6 +12,7 @@ const DetalheVenda: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const [venda, setVenda] = useState<Venda | null>(null);
+  const [produtosMap, setProdutosMap] = useState<Record<number, Produto>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [isConfirming, setIsConfirming] = useState(false);
   const [isShipping, setIsShipping] = useState(false);
@@ -31,6 +33,12 @@ const DetalheVenda: React.FC = () => {
       if (!id) return;
       const dados = await vendasService.obter(Number(id));
       setVenda(dados);
+      // carregar detalhes dos produtos presentes na venda
+      if (dados?.itens && dados.itens.length > 0) {
+        carregarProdutos(dados.itens);
+      } else {
+        setProdutosMap({});
+      }
     } catch (error) {
       // Mostrar mensagem de erro mais detalhada quando disponível
       // (por exemplo: error.response.data.message)
@@ -47,6 +55,23 @@ const DetalheVenda: React.FC = () => {
       console.error(error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const carregarProdutos = async (itens: Venda['itens']) => {
+    try {
+      const ids = Array.from(new Set(itens.map(i => i.produtoId)));
+      const promises = ids.map(id => produtosService.obter(id).catch(() => null));
+      const results = await Promise.all(promises);
+      const map: Record<number, Produto> = {};
+      results.forEach((p, idx) => {
+        const id = ids[idx];
+        if (p) map[id] = p;
+      });
+      setProdutosMap(map);
+    } catch (err) {
+      // não bloquear a renderização se falhar ao buscar produtos
+      console.warn('Erro ao carregar produtos da venda', err);
     }
   };
 
@@ -71,6 +96,10 @@ const DetalheVenda: React.FC = () => {
     };
 
     setVenda(exemplo);
+    // popular produto de exemplo
+    setProdutosMap({
+      1: { id: 1, nome: 'Produto Exemplo' } as Produto,
+    });
     setLoadError(null);
   };
 
@@ -238,7 +267,7 @@ const DetalheVenda: React.FC = () => {
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Produto ID</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Produto</th>
                   <th className="px-6 py-3 text-center text-sm font-semibold text-gray-700">Quantidade</th>
                   <th className="px-6 py-3 text-right text-sm font-semibold text-gray-700">Preço Unitário</th>
                   <th className="px-6 py-3 text-right text-sm font-semibold text-gray-700">Total</th>
@@ -247,7 +276,22 @@ const DetalheVenda: React.FC = () => {
               <tbody>
                 {venda.itens.map((item, index) => (
                   <tr key={index} className="border-b border-gray-200 hover:bg-gray-50 transition">
-                    <td className="px-6 py-4 text-sm text-gray-900">#{item.produtoId}</td>
+                    <td className="px-6 py-4 text-sm text-gray-900">
+                      {produtosMap[item.produtoId] ? (
+                        <div className="flex flex-col">
+                          <span className="font-semibold">{produtosMap[item.produtoId].nome}</span>
+                          {item.variacaoId ? (
+                            (() => {
+                              const p = produtosMap[item.produtoId];
+                              const variacao = p?.variacoes?.find(v => v.id === item.variacaoId);
+                              return variacao ? <span className="text-xs text-gray-500">{variacao.nome} - {variacao.sku}</span> : null;
+                            })()
+                          ) : null}
+                        </div>
+                      ) : (
+                        <span className="text-gray-600">#{item.produtoId}</span>
+                      )}
+                    </td>
                     <td className="px-6 py-4 text-center text-sm text-gray-600">{item.quantidade}</td>
                     <td className="px-6 py-4 text-right text-sm text-gray-600">
                       {formatCurrency(item.precoUnitario)}
