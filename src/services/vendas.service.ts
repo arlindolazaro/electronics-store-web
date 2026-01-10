@@ -22,6 +22,7 @@ export interface VendaItem {
 class VendasService {
     async listar(): Promise<Venda[]> {
         const response = await api.get('/api/sales');
+        // Backend agora retorna SaleListDTO com `itens` já preenchido
         return response.data;
     }
 

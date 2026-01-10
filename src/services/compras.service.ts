@@ -3,13 +3,16 @@ import api from './api';
 export interface PedidoCompra {
     id?: number;
     numeroCompra?: string;
-    data: Date;
-    fornecedorNome: string;
+    data?: Date;
+    supplier?: string;
+    fornecedorNome?: string;
     fornecedorEmail?: string;
-    status: 'DRAFT' | 'ENVIADO' | 'APROVADO' | 'REJEITADO' | 'RECEBIDO';
-    total: number;
+    status: 'DRAFT' | 'ENVIADO' | 'APROVADO' | 'REJEITADO' | 'RECEBIDO' | 'SENT' | 'ACCEPTED' | 'PARTIALLY_RECEIVED' | 'CLOSED' | 'CANCELLED';
+    total?: number;
     justificativaRejeicao?: string;
-    linhas: LinhaCompra[];
+    linhas?: LinhaCompra[];
+    createdBy?: string;
+    createdAt?: string | Date;
 }
 
 export interface LinhaCompra {
@@ -33,31 +36,92 @@ export interface ApprovalTask {
 }
 
 class ComprasService {
+    private mapFromBackend(data: any): PedidoCompra {
+        return {
+            id: data.id,
+            numeroCompra: data.numeroCompra || `#${data.id}`,
+            data: data.createdAt,
+            supplier: data.supplier,
+            fornecedorNome: data.supplier || data.fornecedorNome,
+            fornecedorEmail: data.fornecedorEmail,
+            status: this.mapStatus(data.status),
+            total: data.lines?.reduce((sum: number, line: any) => sum + (line.price * line.quantity), 0) || 0,
+            justificativaRejeicao: data.comment,
+            linhas: (data.lines || []).map((line: any) => ({
+                id: line.id,
+                produtoId: line.variacaoId,
+                variacaoId: line.variacaoId,
+                quantidade: line.quantity,
+                precoUnitario: line.price || 0,
+                total: line.price * line.quantity,
+                quantidadeRecebida: line.quantidadeRecebida,
+                produtoNome: line.productName,
+            })),
+            createdBy: data.createdBy,
+            createdAt: data.createdAt,
+        };
+    }
+
+    private mapStatus(status: string): PedidoCompra['status'] {
+        const mapping: Record<string, PedidoCompra['status']> = {
+            'DRAFT': 'DRAFT',
+            'SENT': 'ENVIADO',
+            'ACCEPTED': 'APROVADO',
+            'PARTIALLY_RECEIVED': 'APROVADO',
+            'CLOSED': 'RECEBIDO',
+            'CANCELLED': 'REJEITADO',
+        };
+        return mapping[status] || (status as PedidoCompra['status']);
+    }
+
     async listar(): Promise<PedidoCompra[]> {
         const response = await api.get('/api/pos');
-        return response.data;
+        return response.data.map((item: any) => this.mapFromBackend(item));
     }
 
     async obter(id: number): Promise<PedidoCompra> {
         const response = await api.get(`/api/pos/${id}`);
-        return response.data;
+        return this.mapFromBackend(response.data);
     }
 
     async criar(pedido: PedidoCompra): Promise<PedidoCompra> {
-        const response = await api.post('/api/pos', pedido);
-        return response.data;
+        const payload = {
+            supplier: pedido.fornecedorNome || pedido.supplier,
+            fornecedorEmail: pedido.fornecedorEmail,
+            poLines: (pedido.linhas || []).map(linha => ({
+                variacaoId: linha.variacaoId,
+                qty: linha.quantidade,
+                unitPrice: linha.precoUnitario,
+            })),
+        };
+        const response = await api.post('/api/pos', payload);
+        return this.mapFromBackend(response.data);
     }
 
     async enviarParaAprovacao(id: number): Promise<PedidoCompra> {
-        const response = await api.post(`/api/pos/${id}/send`);
-        return response.data;
+        try {
+            const user = localStorage.getItem('user');
+            const username = user ? JSON.parse(user).email || JSON.parse(user).username || 'system' : 'system';
+            const response = await api.post(`/api/pos/${id}/send?username=${encodeURIComponent(username)}`);
+            return this.mapFromBackend(response.data);
+        } catch (error) {
+            console.error('Erro ao enviar para aprovação:', error);
+            throw error;
+        }
     }
 
     async receberMercadoria(poId: number, lineId: number, quantidadeRecebida: number): Promise<PedidoCompra> {
-        const response = await api.post(`/api/pos/${poId}/lines/${lineId}/receive`, {
-            quantidadeRecebida,
-        });
-        return response.data;
+        try {
+            const user = localStorage.getItem('user');
+            const username = user ? JSON.parse(user).email || JSON.parse(user).username || 'system' : 'system';
+            const response = await api.post(
+                `/api/pos/${poId}/lines/${lineId}/receive?qty=${quantidadeRecebida}&username=${encodeURIComponent(username)}`
+            );
+            return this.mapFromBackend(response.data);
+        } catch (error) {
+            console.error('Erro ao receber mercadoria:', error);
+            throw error;
+        }
     }
 }
 
