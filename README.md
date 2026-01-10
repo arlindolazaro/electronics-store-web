@@ -138,7 +138,7 @@ src/
 ### Passo 1: Clonar ou Baixar o Projeto
 
 ```bash
-git clone <url-do-repositorio>
+git clone https://github.com/arlindolazaro/electronics-store-web.git
 cd electronics-store-web
 ```
 
@@ -396,8 +396,8 @@ Desenvolvido com dedicação, utilizando as melhores práticas modernas de desen
 
 **Stack Recomendado**:
 
-- Backend: [electronics-store-api](../electronics-store-api)
-- Frontend: Este projeto
+- Backend: [electronics-store-api](https://github.com/arlindolazaro/electronics-store-api)
+- Frontend: [electronics-store-web](https://github.com/arlindolazaro/electronics-store-web)
 - Banco de Dados: MySQL 8.0+
 
 **Última atualização**: Janeiro de 2026
