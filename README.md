@@ -2,7 +2,21 @@
 
 Frontend de aplicação e-commerce para gerenciamento de loja de eletrônicos, desenvolvido com **React 18**, **TypeScript**, **Tailwind CSS** e **Vite**.
 
-## 📋 Descrição do Projeto
+## � Status de Progresso: 80% Completo
+
+| Módulo           | Status          | Progresso |
+| ---------------- | --------------- | --------- |
+| **Autenticação** | ✅ Concluído    | 100%      |
+| **Dashboard**    | ✅ Concluído    | 100%      |
+| **Produtos**     | ✅ Concluído    | 100%      |
+| **Vendas**       | ✅ Concluído    | 100%      |
+| **Compras**      | ✅ Concluído    | 100%      |
+| **Inventário**   | ✅ Concluído    | 95%       |
+| **Usuários**     | ✅ Concluído    | 100%      |
+| **Aprovações**   | 🔄 Em Progresso | 85%       |
+| **Relatórios**   | 🔄 Em Progresso | 75%       |
+
+## �📋 Descrição do Projeto
 
 Interface web completa para gerenciar um e-commerce de eletrônicos, com funcionalidades para:
 
@@ -46,85 +60,102 @@ Interface web completa para gerenciar um e-commerce de eletrônicos, com funcion
 - **Recharts 3.6** - Gráficos e visualizações
 - **date-fns 3.0** - Manipulação de datas
 
-## 📁 Estrutura do Projeto
+## 📁 Estrutura do Projeto (Atualizada)
 
 ```
-src/
-├── App.tsx                        # Componente raiz da aplicação
-├── main.tsx                       # Ponto de entrada
-├── App.css                        # Estilos globais da aplicação
-├── index.css                      # Estilos globais
+electronics-store-web/
+├── src/
+│   ├── App.tsx                                  # Componente raiz
+│   ├── App.css                                  # Estilos globais
+│   ├── index.css                                # Estilos de reset
+│   ├── main.tsx                                 # Ponto de entrada
+│   │
+│   ├── components/                              # Componentes reutilizáveis
+│   │   ├── common/
+│   │   │   └── ProtectedRoute.tsx               # ✅ Proteção de rotas
+│   │   ├── layout/
+│   │   │   ├── Layout.tsx                       # ✅ Layout principal
+│   │   │   ├── Navbar.tsx                       # ✅ Barra de navegação
+│   │   │   └── Sidebar.tsx                      # ✅ Menu lateral
+│   │   └── ui/
+│   │       └── Loading.tsx                      # ✅ Componente loading
+│   │
+│   ├── pages/                                   # Páginas principais
+│   │   ├── Login.tsx                            # ✅ 100% - Login
+│   │   ├── Register.tsx                         # ✅ 100% - Registro
+│   │   ├── Dashboard.tsx                        # ✅ 100% - Dashboard
+│   │   ├── Perfil.tsx                           # ✅ 100% - Perfil usuário
+│   │   │
+│   │   ├── Produtos/                            # ✅ 100% - Gerenciamento de produtos
+│   │   │   ├── ListaProdutos.tsx
+│   │   │   ├── CriarProduto.tsx
+│   │   │   ├── EditarProduto.tsx
+│   │   │   └── DetalheProduto.tsx
+│   │   │
+│   │   ├── Vendas/                              # ✅ 100% - Processamento de vendas
+│   │   │   ├── ListaVendas.tsx
+│   │   │   ├── CriarVenda.tsx
+│   │   │   ├── DetalheVenda.tsx
+│   │   │   └── ConfirmarEnvio.tsx
+│   │   │
+│   │   ├── Compras/                             # ✅ 100% - Gestão de compras
+│   │   │   ├── ListaCompras.tsx
+│   │   │   ├── CriarCompra.tsx
+│   │   │   ├── DetalheCompra.tsx
+│   │   │   ├── AprovarCompra.tsx
+│   │   │   └── ReceberCompra.tsx
+│   │   │
+│   │   ├── Inventario/                          # ✅ 95% - Controle de estoque
+│   │   │   ├── ListaInventario.tsx
+│   │   │   └── DetalheInventario.tsx
+│   │   │
+│   │   ├── Aprovacoes/                          # 🔄 85% - Fluxo de aprovação
+│   │   │   ├── ListaAprovacoes.tsx
+│   │   │   └── DetalheAprovacao.tsx
+│   │   │
+│   │   ├── Usuarios/                            # ✅ 100% - Gestão de usuários
+│   │   │   ├── ListaUsuarios.tsx
+│   │   │   ├── CriarUsuario.tsx
+│   │   │   └── EditarUsuario.tsx
+│   │   │
+│   │   └── Relatorios/                          # 🔄 75% - Análises e métricas
+│   │       ├── VendasPorPeriodo.tsx
+│   │       ├── MetricasAprovacoes.tsx
+│   │       └── StatusInventario.tsx
+│   │
+│   ├── hooks/                                   # Custom React Hooks
+│   │   └── useFetch.ts                          # ✅ Hook para requisições HTTP
+│   │
+│   ├── services/                                # Camada de API
+│   │   ├── api.ts                               # ✅ Configuração Axios base
+│   │   ├── auth.service.ts                      # ✅ Serviço de autenticação
+│   │   ├── produtos.service.ts                  # ✅ Serviço de produtos
+│   │   ├── vendas.service.ts                    # ✅ Serviço de vendas
+│   │   ├── compras.service.ts                   # ✅ Serviço de compras
+│   │   ├── usuarios.service.ts                  # ✅ Serviço de usuários
+│   │   └── relatorios.service.ts                # 🔄 Serviço de relatórios
+│   │
+│   ├── store/                                   # State Management (Zustand)
+│   │   └── authStore.ts                         # ✅ Store de autenticação
+│   │
+│   ├── assets/                                  # Imagens e assets
+│   │
+│   └── utils/                                   # Funções utilitárias
+│       └── formatters.ts                        # ✅ Formatadores de dados
 │
-├── components/                    # Componentes reutilizáveis
-│   ├── common/
-│   │   └── ProtectedRoute.tsx     # Wrapper para rotas protegidas
-│   ├── layout/
-│   │   ├── Layout.tsx             # Layout principal da aplicação
-│   │   ├── Navbar.tsx             # Barra de navegação superior
-│   │   └── Sidebar.tsx            # Menu lateral de navegação
-│   └── ui/
-│       └── Loading.tsx            # Componente de carregamento
-│
-├── pages/                         # Páginas principais
-│   ├── Login.tsx                  # Página de login
-│   ├── Register.tsx               # Página de registro
-│   ├── Dashboard.tsx              # Dashboard principal
-│   ├── Perfil.tsx                 # Perfil do usuário
-│   │
-│   ├── Produtos/                  # Seção de Produtos
-│   │   ├── ListaProdutos.tsx      # Lista de todos os produtos
-│   │   ├── CriarProduto.tsx       # Criar novo produto
-│   │   ├── EditarProduto.tsx      # Editar produto existente
-│   │   └── DetalheProduto.tsx     # Visualizar detalhes do produto
-│   │
-│   ├── Vendas/                    # Seção de Vendas
-│   │   ├── ListaVendas.tsx        # Lista de vendas
-│   │   ├── CriarVenda.tsx         # Criar nova venda
-│   │   ├── DetalheVenda.tsx       # Detalhes da venda
-│   │   └── ConfirmarEnvio.tsx     # Confirmar envio de venda
-│   │
-│   ├── Compras/                   # Seção de Compras/Pedidos
-│   │   ├── ListaCompras.tsx       # Lista de pedidos de compra
-│   │   ├── CriarCompra.tsx        # Criar novo pedido
-│   │   ├── DetalheCompra.tsx      # Detalhes do pedido
-│   │   ├── AprovarCompra.tsx      # Aprovar pedido
-│   │   └── ReceberCompra.tsx      # Receber mercadoria do pedido
-│   │
-│   ├── Inventario/                # Seção de Inventário
-│   │   ├── ListaInventario.tsx    # Lista de itens em estoque
-│   │   └── DetalheInventario.tsx  # Detalhes do item
-│   │
-│   ├── Aprovacoes/                # Seção de Aprovações
-│   │   ├── ListaAprovacoes.tsx    # Lista de tarefas de aprovação
-│   │   └── DetalheAprovacao.tsx   # Detalhes da aprovação
-│   │
-│   ├── Usuarios/                  # Seção de Usuários
-│   │   ├── ListaUsuarios.tsx      # Lista de usuários
-│   │   ├── CriarUsuario.tsx       # Criar novo usuário
-│   │   └── EditarUsuario.tsx      # Editar usuário existente
-│   │
-│   └── Relatorios/                # Seção de Relatórios
-│       ├── VendasPorPeriodo.tsx   # Gráfico de vendas por período
-│       ├── MetricasAprovacoes.tsx # Métricas de aprovações
-│       └── StatusInventario.tsx   # Status do inventário
-│
-├── hooks/                         # Custom React Hooks
-│   └── useFetch.ts                # Hook customizado para requisições
-│
-├── services/                      # Serviços de API
-│   ├── api.ts                     # Configuração base do Axios
-│   ├── auth.service.ts            # Serviço de autenticação
-│   ├── produtos.service.ts        # Serviço de produtos
-│   ├── vendas.service.ts          # Serviço de vendas
-│   ├── compras.service.ts         # Serviço de compras
-│   ├── usuarios.service.ts        # Serviço de usuários
-│   └── relatorios.service.ts      # Serviço de relatórios
-│
-├── store/                         # State Management (Zustand)
-│   └── authStore.ts               # Store de autenticação
-│
-└── utils/                         # Funções utilitárias
-    └── formatters.ts              # Formatadores de dados
+├── public/                                      # Arquivos estáticos
+├── .env                                         # Variáveis de ambiente
+├── .env.example                                 # Exemplo de variáveis
+├── index.html                                   # Template HTML
+├── tailwind.config.js                           # Configuração Tailwind
+├── postcss.config.js                            # Configuração PostCSS
+├── vite.config.ts                               # Configuração Vite
+├── tsconfig.json                                # Configuração TypeScript
+├── tsconfig.app.json                            # Config TypeScript para app
+├── tsconfig.node.json                           # Config TypeScript para build
+├── eslint.config.js                             # Configuração ESLint
+├── package.json                                 # Dependências do projeto
+└── README.md
 ```
 
 ## 🔧 Configuração e Instalação
@@ -166,6 +197,10 @@ npm run dev
 ```
 
 A aplicação estará disponível em: `http://localhost:5173`
+
+# Executar testes (se configurado)
+
+npm run test
 
 ## 📚 Scripts Disponíveis
 
@@ -261,45 +296,67 @@ Arquivo `src/services/api.ts` com:
 
 - BaseURL configurável por variável de ambiente
 - Timeout de 30 segundos
-- Interceptadores para autenticação
-- Tratamento automático de erros
+- Interceptadores para autentica e Status
 
-## 🎯 Funcionalidades Principais
+### ✅ Concluídas (100%)
 
-### 1. **Gerenciamento de Produtos**
+1. **Autenticação e Autorização**
 
-- Listar, criar, editar e deletar produtos
-- Busca e filtros
-- Visualização detalhada
+   - Login seguro com JWT
+   - Registro de novos usuários
+   - Proteção de rotas com ProtectedRoute
+   - Armazenamento de token no localStorage
+   - Refresh token automático
 
-### 2. **Processamento de Vendas**
+2. **Gerenciamento de Produtos**
 
-- Criar vendas associadas a produtos
-- Rastrear status (pendente, enviado, entregue)
-- Confirmar envio e entrega
+   - Listar, criar, editar e deletar produtos
+   - Busca e filtros
+   - Visualização detalhada
+   - Integração com backend
 
-### 3. **Pedidos de Compra**
+3. **Processamento de Vendas**
 
-- Criar pedidos de compra
-- Fluxo de aprovação
-- Receber mercadoria
-- Atualizar inventário automaticamente
+   - Criar vendas associadas a produtos
+   - Rastrear status (pendente, enviado, entregue)
+   - Confirmar envio e entrega
+   - Visualizar histórico
 
-### 4. **Controle de Inventário**
+4. **Pedidos de Compra**
 
-- Visualizar estoque em tempo real
-- Rastrear movimentação
-- Alertas de estoque baixo
+   - Criar pedidos de compra
+   - Fluxo de aprovação completo
+   - Receber mercadoria
+   - Atualizar inventário automaticamente
 
-### 5. **Aprovações**
+5. **Gerenciamento de Usuários**
+   - Listar usuários
+   - Criar e editar usuários
+   - Gerenciar permissões e papéis
+   - Visualizar perfil
 
-- Dashboard de tarefas de aprovação
-- Aprovar ou rejeitar pedidos
-- Histórico de aprovações
+### 🔄 Em Progresso (75-95%)
 
-### 6. **Relatórios e Análises**
+6. **Controle de Inventário** (95%)
 
-- Vendas por período com gráficos
+   - Visualizar estoque em tempo real
+   - Rastrear movimentação
+   - Alertas de estoque baixo
+   - _Pendente: Configuração de alertas automáticos_
+
+7. **Fluxo de Aprovações** (85%)
+
+   - Dashboard de tarefas de aprovação
+   - Aprovar ou rejeitar pedidos
+   - Histórico de aprovações
+   - _Pendente: Notificações em tempo real_
+
+8. **Relatórios e Análises** (75%)
+   - Vendas por período com gráficos
+   - Métricas de aprovação
+   - Status de inventário
+   - *Pendente: Exportação de dados em PDF/Excel*com gráficos
+
 - Métricas de aprovação
 - Status de inventário
 - Exportação de dados
@@ -382,7 +439,9 @@ VITE_API_URL=https://seu-backend.com/api
 Para dúvidas ou sugestões:
 
 - Abra uma **Issue** no repositório
-- Entre em contato via email: **arlindolazaro202@gmail.com**
+- Entre em contato via e15 de Janeiro de 2026  
+  **Versão**: 1.0.0  
+  **Status Geral**: 80% Completo - Funcionalidades core prontas, aguardando finalizações de features avançadaslazaro202@gmail.com**
 
 ## 📄 Licença
 
