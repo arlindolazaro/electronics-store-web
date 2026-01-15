@@ -36,33 +36,55 @@ export interface ApprovalTask {
 }
 
 class ComprasService {
-    private mapFromBackend(data: any): PedidoCompra {
+    async listar(): Promise<PedidoCompra[]> {
+        try {
+            const response = await api.get('/api/pos');
+            return (response.data || []).map((item: any) => this.normalizeCompra(item));
+        } catch (err) {
+            console.error('[compras.service] erro ao listar compras:', err);
+            throw err;
+        }
+    }
+
+    async obter(id: number): Promise<PedidoCompra> {
+        try {
+            const response = await api.get(`/api/pos/${id}`);
+            return this.normalizeCompra(response.data);
+        } catch (err) {
+            console.error('[compras.service] erro ao obter compra:', err);
+            throw err;
+        }
+    }
+
+    private normalizeCompra(data: any): PedidoCompra {
+        const linhasData = data.linhas || data.lines || [];
+
         return {
             id: data.id,
             numeroCompra: data.numeroCompra || `#${data.id}`,
-            data: data.createdAt,
-            supplier: data.supplier,
-            fornecedorNome: data.supplier || data.fornecedorNome,
+            data: data.createdAt || data.data,
+            supplier: data.supplier || data.fornecedorNome,
+            fornecedorNome: data.fornecedorNome || data.supplier,
             fornecedorEmail: data.fornecedorEmail,
-            status: this.mapStatus(data.status),
-            total: data.lines?.reduce((sum: number, line: any) => sum + (line.price * line.quantity), 0) || 0,
-            justificativaRejeicao: data.comment,
-            linhas: (data.lines || []).map((line: any) => ({
+            status: this.normalizeStatus(data.status),
+            total: Number(data.total) || (linhasData?.reduce((sum: number, line: any) => sum + ((line.precoUnitario || line.price || 0) * (line.quantidade || line.quantity)), 0) || 0),
+            justificativaRejeicao: data.comment || data.justificativaRejeicao,
+            linhas: linhasData.map((line: any) => ({
                 id: line.id,
-                produtoId: line.variacaoId,
+                produtoId: line.produtoId,
                 variacaoId: line.variacaoId,
-                quantidade: line.quantity,
-                precoUnitario: line.price || 0,
-                total: line.price * line.quantity,
-                quantidadeRecebida: line.quantidadeRecebida,
-                produtoNome: line.productName,
+                quantidade: Number(line.quantidade || line.quantity),
+                precoUnitario: Number(line.precoUnitario || line.price || 0),
+                total: Number(line.total || ((line.precoUnitario || line.price || 0) * (line.quantidade || line.quantity))),
+                quantidadeRecebida: line.quantidadeRecebida ? Number(line.quantidadeRecebida) : 0,
+                produtoNome: line.produtoNome || line.productName,
             })),
             createdBy: data.createdBy,
             createdAt: data.createdAt,
         };
     }
 
-    private mapStatus(status: string): PedidoCompra['status'] {
+    private normalizeStatus(status: string): PedidoCompra['status'] {
         const mapping: Record<string, PedidoCompra['status']> = {
             'DRAFT': 'DRAFT',
             'SENT': 'ENVIADO',
@@ -72,16 +94,6 @@ class ComprasService {
             'CANCELLED': 'REJEITADO',
         };
         return mapping[status] || (status as PedidoCompra['status']);
-    }
-
-    async listar(): Promise<PedidoCompra[]> {
-        const response = await api.get('/api/pos');
-        return response.data.map((item: any) => this.mapFromBackend(item));
-    }
-
-    async obter(id: number): Promise<PedidoCompra> {
-        const response = await api.get(`/api/pos/${id}`);
-        return this.mapFromBackend(response.data);
     }
 
     async criar(pedido: PedidoCompra): Promise<PedidoCompra> {
@@ -95,7 +107,7 @@ class ComprasService {
             })),
         };
         const response = await api.post('/api/pos', payload);
-        return this.mapFromBackend(response.data);
+        return this.normalizeCompra(response.data);
     }
 
     async enviarParaAprovacao(id: number): Promise<PedidoCompra> {
@@ -103,7 +115,7 @@ class ComprasService {
             const user = localStorage.getItem('user');
             const username = user ? JSON.parse(user).email || JSON.parse(user).username || 'system' : 'system';
             const response = await api.post(`/api/pos/${id}/send?username=${encodeURIComponent(username)}`);
-            return this.mapFromBackend(response.data);
+            return this.normalizeCompra(response.data);
         } catch (error) {
             console.error('Erro ao enviar para aprovação:', error);
             throw error;
@@ -117,7 +129,7 @@ class ComprasService {
             const response = await api.post(
                 `/api/pos/${poId}/lines/${lineId}/receive?qty=${quantidadeRecebida}&username=${encodeURIComponent(username)}`
             );
-            return this.mapFromBackend(response.data);
+            return this.normalizeCompra(response.data);
         } catch (error) {
             console.error('Erro ao receber mercadoria:', error);
             throw error;
