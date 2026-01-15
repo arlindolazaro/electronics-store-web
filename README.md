@@ -2,7 +2,7 @@
 
 Frontend de aplicação e-commerce para gerenciamento de loja de eletrônicos, desenvolvido com **React 18**, **TypeScript**, **Tailwind CSS** e **Vite**.
 
-## � Status de Progresso: 80% Completo
+## Status de Progresso: 80% Completo
 
 | Módulo           | Status          | Progresso |
 | ---------------- | --------------- | --------- |
@@ -16,7 +16,7 @@ Frontend de aplicação e-commerce para gerenciamento de loja de eletrônicos, d
 | **Aprovações**   | 🔄 Em Progresso | 85%       |
 | **Relatórios**   | 🔄 Em Progresso | 75%       |
 
-## �📋 Descrição do Projeto
+## 📋 Descrição do Projeto
 
 Interface web completa para gerenciar um e-commerce de eletrônicos, com funcionalidades para:
 
@@ -441,7 +441,7 @@ Para dúvidas ou sugestões:
 - Abra uma **Issue** no repositório
 - Entre em contato via e15 de Janeiro de 2026  
   **Versão**: 1.0.0  
-  **Status Geral**: 80% Completo - Funcionalidades core prontas, aguardando finalizações de features avançadaslazaro202@gmail.com**
+  **Status Geral**: 80% Completo - Funcionalidades core prontas, aguardando finalizações de features avançadas arlindolazaro202@gmail.com**
 
 ## 📄 Licença
 
