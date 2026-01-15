@@ -2,18 +2,22 @@ import api from './api';
 
 export interface Venda {
     id?: number;
-    data: Date | string; // backend pode retornar string ISO
+    data: Date | string;
     clienteNome: string;
     clienteEmail?: string;
     clienteTelefone?: string;
     status: 'DRAFT' | 'CONFIRMED' | 'SHIPPED' | 'RESERVED' | 'PAID' | 'DELIVERED' | 'CANCELLED' | 'RETURNED';
     total: number;
     itens: VendaItem[];
+    createdBy?: string;
+    createdAt?: string;
 }
 
 export interface VendaItem {
     produtoId: number;
+    produtoNome?: string;
     variacaoId: number;
+    variacaoSku?: string;
     quantidade: number;
     precoUnitario: number;
     total: number;
@@ -21,60 +25,93 @@ export interface VendaItem {
 
 class VendasService {
     async listar(): Promise<Venda[]> {
-        const response = await api.get('/api/sales');
-        // Backend agora retorna SaleListDTO com `itens` já preenchido
-        return response.data;
+        try {
+            const response = await api.get('/api/sales');
+            return response.data || [];
+        } catch (err) {
+            console.error('[vendas.service] erro ao listar vendas:', err);
+            throw err;
+        }
     }
 
     async obter(id: number): Promise<Venda> {
-        const maxAttempts = 3;
-        let attempt = 0;
-        const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+        try {
+            const response = await api.get(`/api/sales/${id}`);
 
-        while (attempt < maxAttempts) {
-            try {
-                const response = await api.get(`/api/sales/${id}`);
-                return response.data;
-            } catch (err) {
-                attempt++;
-                // @ts-ignore
-                const status = err?.response?.status;
-                // If server error (5xx) try again, otherwise rethrow
-                if (status && status >= 500 && attempt < maxAttempts) {
-                    // exponential backoff
-                    const wait = 200 * Math.pow(2, attempt);
-                    // eslint-disable-next-line no-console
-                    console.warn(`[vendas.service] tentativa ${attempt} falhou (status ${status}), retry em ${wait}ms`);
-                    // wait then retry
-                    // @ts-ignore
-                    await delay(wait);
-                    continue;
-                }
-                // rethrow original error
-                throw err;
-            }
+            // Normalize response data to match interface
+            const data = response.data;
+            return {
+                id: data.id,
+                data: data.createdAt || data.data,
+                clienteNome: data.clienteNome,
+                clienteEmail: data.clienteEmail,
+                clienteTelefone: data.clienteTelefone,
+                status: this.normalizeStatus(data.status),
+                total: Number(data.total) || 0,
+                itens: (data.itens || []).map(item => ({
+                    produtoId: item.produtoId,
+                    produtoNome: item.produtoNome,
+                    variacaoId: item.variacaoId,
+                    variacaoSku: item.variacaoSku,
+                    quantidade: Number(item.quantidade),
+                    precoUnitario: Number(item.precoUnitario),
+                    total: Number(item.total),
+                })),
+                createdBy: data.createdBy,
+                createdAt: data.createdAt,
+            };
+        } catch (err) {
+            console.error('[vendas.service] erro ao obter venda:', err);
+            throw err;
         }
-        // If all attempts exhausted, throw a generic error
-        throw new Error('Não foi possível obter a venda após múltiplas tentativas');
+    }
+
+    private normalizeStatus(status: string): Venda['status'] {
+        const mapping: Record<string, Venda['status']> = {
+            'DRAFT': 'DRAFT',
+            'CONFIRMED': 'CONFIRMED',
+            'RESERVED': 'RESERVED',
+            'PAID': 'PAID',
+            'SHIPPED': 'SHIPPED',
+            'DELIVERED': 'DELIVERED',
+            'CANCELLED': 'CANCELLED',
+            'RETURNED': 'RETURNED',
+        };
+        return mapping[status] || (status as Venda['status']);
     }
 
     async criar(venda: Venda): Promise<Venda> {
-        const response = await api.post('/api/sales', venda);
-        return response.data;
+        try {
+            const response = await api.post('/api/sales', venda);
+            return response.data;
+        } catch (err) {
+            console.error('[vendas.service] erro ao criar venda:', err);
+            throw err;
+        }
     }
 
     async confirmar(id: number, location: string = 'default', username: string = 'system'): Promise<Venda> {
-        const response = await api.post(`/api/sales/${id}/confirm`, null, {
-            params: { location, username }
-        });
-        return response.data;
+        try {
+            const response = await api.post(`/api/sales/${id}/confirm`, null, {
+                params: { location, username }
+            });
+            return response.data;
+        } catch (err) {
+            console.error('[vendas.service] erro ao confirmar venda:', err);
+            throw err;
+        }
     }
 
     async marcarEnviada(id: number, location: string = 'default', username: string = 'system'): Promise<Venda> {
-        const response = await api.post(`/api/sales/${id}/ship`, null, {
-            params: { location, username }
-        });
-        return response.data;
+        try {
+            const response = await api.post(`/api/sales/${id}/ship`, null, {
+                params: { location, username }
+            });
+            return response.data;
+        } catch (err) {
+            console.error('[vendas.service] erro ao marcar enviada:', err);
+            throw err;
+        }
     }
 }
 
