@@ -71,13 +71,15 @@ const CriarCompra: React.FC = () => {
 
     const novaLinha: LinhaCompraForm = {
       produtoId: Number(selectedProdutoId),
-      variacaoId: 1, // Variação padrão
+      variacaoId: 1,
       quantidade,
       precoUnitario,
       produtoNome: produtoSelecionado?.nome,
     };
 
-    setLinhas([...linhas, novaLinha]);
+    setLinhas(prev => [...prev, novaLinha]);
+    
+    // Reset campos
     setSelectedProdutoId('');
     setQuantidade(1);
     setPrecoUnitario(0);
@@ -243,54 +245,67 @@ const CriarCompra: React.FC = () => {
         )}
 
         {/* Linhas de Compra */}
-        {linhas.length > 0 && (
-          <div className="bg-white border border-gray-200 rounded-lg p-6">
-            <h2 className="text-lg font-semibold mb-4">Linhas do Pedido</h2>
-            
-            <div className="border border-gray-200 rounded-lg overflow-hidden">
-              <table className="w-full">
-                <thead className="bg-gray-50 border-b border-gray-200">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Produto</th>
-                    <th className="px-6 py-3 text-center text-sm font-semibold text-gray-700">Qtd</th>
-                    <th className="px-6 py-3 text-right text-sm font-semibold text-gray-700">Preço Unit.</th>
-                    <th className="px-6 py-3 text-right text-sm font-semibold text-gray-700">Total</th>
-                    <th className="px-6 py-3 text-center text-sm font-semibold text-gray-700"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {linhas.map((linha, index) => (
-                    <tr key={index} className="border-b border-gray-200 hover:bg-gray-50 transition">
-                      <td className="px-6 py-4 text-sm text-gray-900">{linha.produtoNome}</td>
-                      <td className="px-6 py-4 text-center text-sm text-gray-600">{linha.quantidade}</td>
-                      <td className="px-6 py-4 text-right text-sm text-gray-600">
-                        {formatCurrency(linha.precoUnitario)}
-                      </td>
-                      <td className="px-6 py-4 text-right text-sm font-semibold text-gray-900">
-                        {formatCurrency(safeMultiply(linha.quantidade, linha.precoUnitario))}
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <button
-                          type="button"
-                          onClick={() => removerLinha(index)}
-                          className="text-red-600 hover:text-red-700 transition"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </td>
+        <div className="bg-white border border-gray-200 rounded-lg p-6">
+          <h2 className="text-lg font-semibold mb-4">
+            Linhas do Pedido {linhas.length > 0 && <span className="text-blue-600">({linhas.length})</span>}
+          </h2>
+          
+          {linhas.length === 0 ? (
+            <div className="text-center py-10 text-gray-500 border-2 border-dashed rounded-lg bg-gray-50">
+              <p className="font-medium">Nenhuma linha adicionada ainda</p>
+              <p className="text-sm">Adicione produtos acima para continuar</p>
+            </div>
+          ) : (
+            <>
+              <div className="border border-gray-200 rounded-lg overflow-hidden">
+                <table className="w-full">
+                  <thead className="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Produto</th>
+                      <th className="px-6 py-3 text-center text-sm font-semibold text-gray-700">Quantidade</th>
+                      <th className="px-6 py-3 text-right text-sm font-semibold text-gray-700">Preço Unit.</th>
+                      <th className="px-6 py-3 text-right text-sm font-semibold text-gray-700">Total</th>
+                      <th className="px-6 py-3 text-center text-sm font-semibold text-gray-700">Ação</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {linhas.map((linha, index) => (
+                      <tr key={index} className="border-b border-gray-200 hover:bg-gray-50 transition">
+                        <td className="px-6 py-4 text-sm text-gray-900">{linha.produtoNome || `Produto ${linha.produtoId}`}</td>
+                        <td className="px-6 py-4 text-center text-sm text-gray-600">{linha.quantidade}</td>
+                        <td className="px-6 py-4 text-right text-sm text-gray-600">
+                          {formatCurrency(linha.precoUnitario)}
+                        </td>
+                        <td className="px-6 py-4 text-right text-sm font-semibold text-gray-900">
+                          {formatCurrency(safeMultiply(linha.quantidade, linha.precoUnitario))}
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <button
+                            type="button"
+                            onClick={() => removerLinha(index)}
+                            className="text-red-600 hover:text-red-700 transition"
+                            title="Remover linha"
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
 
-            <div className="mt-4 text-right">
-              <p className="text-lg font-semibold text-gray-900">
-                Total: {formatCurrency(total)}
-              </p>
-            </div>
-          </div>
-        )}
+              <div className="mt-6 flex justify-end">
+                <div className="text-right">
+                  <p className="text-gray-600 text-sm mb-2">Total do Pedido:</p>
+                  <p className="text-3xl font-bold text-blue-600">
+                    {formatCurrency(total)}
+                  </p>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
 
         {/* Botões */}
         <div className="flex gap-4 justify-end">
