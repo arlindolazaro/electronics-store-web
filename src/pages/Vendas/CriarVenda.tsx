@@ -73,20 +73,20 @@ const CriarVenda: React.FC = () => {
       return;
     }
 
-    setItems([
-      ...items,
-      {
-        produtoId: Number(selectedProdutoId),
-        variacaoId: 0,
-        quantidade,
-        precoUnitario,
-        produtoNome: produtoSelecionado?.nome,
-      },
-    ]);
+    const novoItem = {
+      produtoId: Number(selectedProdutoId),
+      variacaoId: 0,
+      quantidade,
+      precoUnitario,
+      produtoNome: produtoSelecionado?.nome,
+    };
 
+    setItems(prev => [...prev, novoItem]);
+    
+    // Reset campos
     setSelectedProdutoId('');
     setQuantidade(1);
-    toast.success('Item adicionado');
+    toast.success('Item adicionado com sucesso');
   };
 
   const removerItem = (index: number) => {
@@ -264,52 +264,65 @@ const CriarVenda: React.FC = () => {
         )}
 
         {/* Itens */}
-        {items.length > 0 && (
-          <div className="bg-white border rounded-lg p-5">
-            <h2 className="text-lg font-semibold mb-4">Itens da Venda</h2>
+        <div className="bg-white border rounded-lg p-5">
+          <h2 className="text-lg font-semibold mb-4">
+            Itens da Venda {items.length > 0 && <span className="text-blue-600">({items.length})</span>}
+          </h2>
 
-            <table className="w-full border">
-              <thead className="bg-gray-50 border-b">
-                <tr>
-                  <th className="th">Produto</th>
-                  <th className="th text-center">Qtd</th>
-                  <th className="th text-right">Preço</th>
-                  <th className="th text-right">Total</th>
-                  <th className="th"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((item, index) => (
-                  <tr key={index} className="border-b">
-                    <td className="td">{item.produtoNome}</td>
-                    <td className="td text-center">{item.quantidade}</td>
-                    <td className="td text-right">
-                      {formatCurrency(item.precoUnitario)}
-                    </td>
-                    <td className="td text-right font-semibold">
-                      {formatCurrency(
-                        safeMultiply(item.quantidade, item.precoUnitario)
-                      )}
-                    </td>
-                    <td className="td text-center">
-                      <button
-                        type="button"
-                        onClick={() => removerItem(index)}
-                        className="text-red-600"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-
-            <div className="mt-4 text-right text-lg font-semibold">
-              Total: {formatCurrency(total)}
+          {items.length === 0 ? (
+            <div className="text-center py-8 text-gray-500 border-2 border-dashed rounded-lg">
+              <p>Nenhum item adicionado ainda</p>
+              <p className="text-sm">Adicione produtos acima para continuar</p>
             </div>
-          </div>
-        )}
+          ) : (
+            <>
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-gray-100 border-b">
+                    <th className="th text-left">Produto</th>
+                    <th className="th text-center">Quantidade</th>
+                    <th className="th text-right">Preço Unit.</th>
+                    <th className="th text-right">Total</th>
+                    <th className="th text-center">Ação</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {items.map((item, index) => (
+                    <tr key={index} className="border-b hover:bg-gray-50 transition">
+                      <td className="td py-3">{item.produtoNome || `Produto ${item.produtoId}`}</td>
+                      <td className="td text-center py-3">{item.quantidade}</td>
+                      <td className="td text-right py-3">
+                        {formatCurrency(item.precoUnitario)}
+                      </td>
+                      <td className="td text-right py-3 font-semibold">
+                        {formatCurrency(safeMultiply(item.quantidade, item.precoUnitario))}
+                      </td>
+                      <td className="td text-center py-3">
+                        <button
+                          type="button"
+                          onClick={() => removerItem(index)}
+                          className="text-red-600 hover:text-red-800 transition"
+                          title="Remover item"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              <div className="mt-6 flex justify-end">
+                <div className="text-right">
+                  <p className="text-gray-600 text-sm mb-2">Total da Venda:</p>
+                  <p className="text-3xl font-bold text-blue-600">
+                    {formatCurrency(total)}
+                  </p>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
 
         {/* Ações */}
         <div className="flex justify-end gap-3 pt-3 border-t">
